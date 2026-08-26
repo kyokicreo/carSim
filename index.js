@@ -2,29 +2,39 @@ let speedCount = 0
 let speed = document.getElementById("speed")
 let handbrake = document.getElementById("handbrake")
 let statusEng = document.getElementById("statusEng")
+let speedometr = document.getElementById("speedometr")
+const ENGINE_VOLUME = 1.2
+let rate = 0.05 + (ENGINE_VOLUME* 0.06)
 let pressed = false
-let turnOn = true
+let brakeStrong = 1
+let engineOn = false
 let stopCar = false
+const maxSpeed = 240
 
 document.addEventListener("keydown", (e) => {
     if (e.code == "KeyW") {
-        if (turnOn || stopCar) return
+        if (engineOn || stopCar) return
         pressed = true
     }
-    if (e.code == "KeyF"){
-        if (turnOn) turnOn = false
-        else turnOn = true
+    if (e.code == "KeyF") {
+        if (engineOn) engineOn = false
+        else engineOn = true
 
-        if (turnOn) {
+        if (engineOn) {
             pressed = false
         }
     }
+    if(e.code == "KeyS") {
+        if (engineOn || stopCar) return
+        speedCount -= brakeStrong
+        if (speedCount < 0) speedCount = 0
+    }
     if (e.code == "Space") {
         e.preventDefault()
-        if(stopCar) stopCar = false
+        if (stopCar) stopCar = false
         else stopCar = true
 
-        if(stopCar) {
+        if (stopCar) {
             pressed = false
         }
     }
@@ -38,23 +48,31 @@ document.addEventListener("keyup", (e) => {
 
 function updateSpeed() {
     if (stopCar) {
-        if(speedCount > 0) {
+        if (speedCount > 0) {
             speedCount -= 3
-            if(speedCount < 0) speedCount = 0
+            if (speedCount < 0) speedCount = 0
         }
     }
     else if (pressed) {
-        if (speedCount < 240) speedCount += 0.3
+        if (speedCount < maxSpeed) speedCount += rate
     }
     else {
+        
         if (speedCount > 0) {
             speedCount -= 0.07
-            if (speedCount < 0) speedCount = 0 
+            if (speedCount < 0) speedCount = 0
         }
     }
 
+    if (speedCount > 234) {
+        speedometr.style.backgroundColor = "red"
+    } else {
+        speedometr.style.backgroundColor = "green"
+    }
+
     speed.textContent = "Speed: " + Math.floor(speedCount)
-    statusEng.textContent = turnOn ? "Engine: off" : "Engine: on"
+    speedometr.style.width = Math.floor(speedCount) * 2 + "px"
+    statusEng.textContent = engineOn ? "Engine: on" : "Engine: off"
     handbrake.textContent = stopCar ? "Handbrake: on" : "Handbrake: off"
     requestAnimationFrame(updateSpeed)
 

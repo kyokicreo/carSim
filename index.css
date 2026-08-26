@@ -1,0 +1,5 @@
+.speedometr{
+    height: 20px;
+    background-color: green;
+    transition: all 0.1s ease;
+}
